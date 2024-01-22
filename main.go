@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"golangapi/awsgo"
+	secretmanager "golangapi/secretManager"
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -13,8 +15,9 @@ func main() {
 }
 
 func callLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
-	var res *event.APIGatewayProxyResponse
+	var res *events.APIGatewayProxyResponse
 
+	awsgo.InitAws()
 	if !ValidateParams() {
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: 400,
@@ -25,7 +28,18 @@ func callLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 		}
 		return res, nil
 	}
+	SecretModel, erro := secretmanager.GetSecrets(os.Getenv("SecretName"))
 
+	if erro != nil {
+		res = &events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "Error en lalectura del secret" + erro.Error(),
+			Headers: map[string]string{
+				"Content-type": "application/json",
+			},
+		}
+		return res, nil
+	}
 }
 
 func ValidateParams() bool {
