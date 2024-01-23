@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"golangapi/awsgo"
+	"golangapi/models"
 	secretmanager "golangapi/secretManager"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -40,6 +42,17 @@ func callLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 		}
 		return res, nil
 	}
+
+	path := strings.Replace(request.PathParameters["awsgolangtuiter"], os.Getenv("UrlPrefix"), "", -1)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("method"), request.HTTPMethod)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("user"), SecretModel.Username)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("password"), SecretModel.Password)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("jwtsing"), SecretModel.Jwtsing)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("database"), SecretModel.Database)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("host"), SecretModel.Host)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
+
 }
 
 func ValidateParams() bool {

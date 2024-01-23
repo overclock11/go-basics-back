@@ -4,6 +4,6 @@ type Secret struct {
 	Host     string `json:"host"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Jwtrsing string `json:"jwtrsing"`
+	Jwtsing  string `json:"jwtsing"`
 	Database string `json:"database"`
 }
