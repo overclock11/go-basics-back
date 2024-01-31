@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"golangapi/awsgo"
+	"golangapi/handlers"
 	"golangapi/models"
 	secretmanager "golangapi/secretManager"
 	"os"
@@ -44,6 +45,7 @@ func callLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 	}
 
 	path := strings.Replace(request.PathParameters["awsgolangtuiter"], os.Getenv("UrlPrefix"), "", -1)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("path"), path)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("method"), request.HTTPMethod)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("user"), SecretModel.Username)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("password"), SecretModel.Password)
@@ -52,6 +54,20 @@ func callLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("host"), SecretModel.Host)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
+
+	resApi := handlers.Handler(awsgo.Ctx, request)
+	if resApi.CustomResp == nil {
+		res = &events.APIGatewayProxyResponse{
+			StatusCode: resApi.Status,
+			Body:       resApi.Message,
+			Headers: map[string]string{
+				"Content-type": "application/json",
+			},
+		}
+		return res, nil
+	} else {
+		return resApi.CustomResp, nil
+	}
 
 }
 
