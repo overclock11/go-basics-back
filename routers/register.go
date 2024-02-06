@@ -35,5 +35,25 @@ func Register(ctx context.Context) models.ResApi {
 		return response
 	}
 
-	_, exist = db.validateIfExist(user.Email)
+	_, exist = db.ValidateIfExist(user.Email)
+
+	if exist {
+		response.Message = "ya viste un usuario con ese email"
+		fmt.Println(response.Message)
+		return response
+	}
+
+	_, status, err = db.InsertUser(user)
+
+	if err != nil {
+		response.Message = "error insertando registro"
+		fmt.Println(response.Message)
+		return response
+	}
+
+	if !status {
+		response.Message = "status de error"
+		fmt.Println(response.Message)
+		return response
+	}
 }
