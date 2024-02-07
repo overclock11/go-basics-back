@@ -15,14 +15,14 @@ func ValidateIfExist(email string) (models.User, bool, string) {
 	db := MongoCN.Database(DatabaseName)
 	col := db.Collection("usuarios")
 
-	condicion := bson.M{"email": email}
+	condition := bson.M{"email": email}
 
-	var resultado models.Usuario
+	var result models.User
 
-	err := col.FindOne(ctx, condicion).Decode(&resultado)
-	ID := resultado.ID.Hex()
+	err := col.FindOne(ctx, condition).Decode(&result)
+	ID := result.ID.Hex()
 	if err != nil {
-		return resultado, false, ID
+		return result, false, ID
 	}
-	return resultado, true, ID
+	return result, true, ID
 }

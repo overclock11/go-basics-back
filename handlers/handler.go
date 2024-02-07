@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"golangapi/jwt"
 	"golangapi/models"
+	"golangapi/routers"
 
 	"github.com/aws/aws-lambda-go/events"
 )
@@ -13,7 +14,7 @@ func Handler(ctx context.Context, request events.APIGatewayProxyRequest) models.
 	var r models.ResApi
 	r.Status = 400
 
-	isOK, statusCode, msg, claim := validateAuth(ctx, request)
+	isOK, statusCode, msg, _ := validateAuth(ctx, request)
 
 	if !isOK {
 		r.Status = statusCode

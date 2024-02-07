@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"golangapi/db"
 	"golangapi/models"
 )
 
@@ -35,7 +36,7 @@ func Register(ctx context.Context) models.ResApi {
 		return response
 	}
 
-	_, exist = db.ValidateIfExist(user.Email)
+	_, exist, _ := db.ValidateIfExist(user.Email)
 
 	if exist {
 		response.Message = "ya viste un usuario con ese email"
@@ -43,7 +44,7 @@ func Register(ctx context.Context) models.ResApi {
 		return response
 	}
 
-	_, status, err = db.InsertUser(user)
+	_, status, err := db.InsertUser(user)
 
 	if err != nil {
 		response.Message = "error insertando registro"
@@ -56,4 +57,5 @@ func Register(ctx context.Context) models.ResApi {
 		fmt.Println(response.Message)
 		return response
 	}
+	return response
 }
